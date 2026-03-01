@@ -26,14 +26,7 @@ jobs:
         with:
           node-version: "20"
 
-      # Pages must be enabled in repo Settings → Pages → Source: GitHub Actions
-      - name: Setup Pages
-        id: pages
-        uses: actions/configure-pages@v5
-        with:
-          static_site_generator: next
-          enablement: false
-
+      # Base path for GitHub Pages: https://owner.github.io/REPO_NAME/
       - name: Install dependencies
         working-directory: frontend
         run: npm install
@@ -41,8 +34,8 @@ jobs:
       - name: Build with Next.js
         working-directory: frontend
         env:
-          BASE_PATH: ${{ steps.pages.outputs.base_path }}
-          NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          BASE_PATH: /${{ github.event.repository.name }}
+          NEXT_PUBLIC_BASE_PATH: /${{ github.event.repository.name }}
         run: npm run build
 
       - name: Upload artifact
