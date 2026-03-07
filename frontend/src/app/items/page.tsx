@@ -1,18 +1,27 @@
+"use client";
+
+import { useEffect, useState } from "react";
+
 type Item = {
   id: number;
   name: string;
 };
 
-async function getItems(): Promise<Item[]> {
-  const res = await fetch(`${process.env.BACKEND_URL}/items`, {
-    cache: "no-store",
-  });
-  if (!res.ok) throw new Error("Failed to fetch items");
-  return res.json();
-}
+export default function ItemsPage() {
+  const [items, setItems] = useState<Item[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-export default async function ItemsPage() {
-  const items = await getItems();
+  useEffect(() => {
+    fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/items`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to fetch items");
+        return res.json();
+      })
+      .then(setItems)
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
@@ -21,7 +30,11 @@ export default async function ItemsPage() {
           Items
         </h1>
 
-        {items.length === 0 ? (
+        {loading ? (
+          <p className="text-zinc-500 dark:text-zinc-400">Loading...</p>
+        ) : error ? (
+          <p className="text-red-500">{error}</p>
+        ) : items.length === 0 ? (
           <p className="text-zinc-500 dark:text-zinc-400">No items found.</p>
         ) : (
           <ul className="divide-y divide-zinc-200 rounded-lg border border-zinc-200 bg-white dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-900">
