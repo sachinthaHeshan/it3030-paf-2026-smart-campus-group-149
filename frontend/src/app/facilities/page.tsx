@@ -89,9 +89,9 @@ function FacilitiesContent() {
       const data = await apiFetch<ResourceListResponse>(
         `/api/resources?${params.toString()}`,
       );
-      setResources(data.resources);
-      setTotalPages(data.totalPages);
-      setTotalElements(data.totalElements);
+      setResources(data?.resources ?? []);
+      setTotalPages(data?.totalPages ?? 0);
+      setTotalElements(data?.totalElements ?? 0);
     } catch {
       setError("Failed to load resources.");
     } finally {
