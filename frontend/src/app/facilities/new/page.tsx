@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import PageHeader from "@/components/ui/PageHeader";
 import { apiFetch } from "@/lib/api";
-import { Plus, Trash2, Loader2 } from "lucide-react";
+import { uploadFile, getPublicUrl } from "@/lib/supabase";
+import { Plus, Trash2, Loader2, Upload, X } from "lucide-react";
 
 const RESOURCE_TYPES = [
   "LECTURE_HALL",
@@ -44,8 +45,33 @@ function NewFacilityContent() {
   const [availabilityWindows, setAvailabilityWindows] = useState<
     AvailabilityRow[]
   >([{ day: "MONDAY", startTime: "08:00", endTime: "17:00" }]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const handleImageSelect = (file: File) => {
+    if (!file.type.startsWith("image/")) {
+      setError("Please select an image file.");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be less than 5MB.");
+      return;
+    }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+    setError(null);
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    if (imagePreview) URL.revokeObjectURL(imagePreview);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
 
   const addWindow = () => {
     setAvailabilityWindows([
@@ -75,12 +101,21 @@ function NewFacilityContent() {
 
     setSubmitting(true);
     try {
+      let imageUrl: string | null = null;
+      if (imageFile) {
+        setUploading(true);
+        const path = await uploadFile("facility-images", imageFile);
+        imageUrl = getPublicUrl("facility-images", path);
+        setUploading(false);
+      }
+
       const body = {
         name: name.trim(),
         type,
         capacity: capacity ? Number.parseInt(capacity, 10) : null,
         location: location.trim(),
         description: description.trim() || null,
+        imageUrl,
         status,
         availabilityWindows: availabilityWindows.map((w) => ({
           dayOfWeek: w.day,
@@ -95,6 +130,7 @@ function NewFacilityContent() {
       });
       router.push(`/facilities/${created.id}/`);
     } catch {
+      setUploading(false);
       setError("Failed to create resource. Please check your inputs.");
     } finally {
       setSubmitting(false);
@@ -185,6 +221,57 @@ function NewFacilityContent() {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 className="w-full rounded-lg border border-border bg-white px-3 py-2 text-[13px] outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 resize-none"
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-[13px] font-medium text-foreground mb-1">
+                Image
+              </label>
+              {imagePreview ? (
+                <div className="relative w-full h-48 rounded-lg overflow-hidden border border-border">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                  <button
+                    type="button"
+                    onClick={removeImage}
+                    className="absolute top-2 right-2 rounded-full bg-black/50 p-1.5 text-white hover:bg-black/70 transition-colors"
+                  >
+                    <X size={14} />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    const file = e.dataTransfer.files[0];
+                    if (file) handleImageSelect(file);
+                  }}
+                  className="flex flex-col items-center justify-center w-full h-36 rounded-lg border-2 border-dashed border-border bg-gray-50 hover:border-primary hover:bg-gray-100 transition-colors cursor-pointer"
+                >
+                  <Upload size={24} className="text-muted mb-2" />
+                  <span className="text-[13px] text-muted">
+                    Click or drag an image to upload
+                  </span>
+                  <span className="text-[11px] text-muted mt-1">
+                    JPG, PNG, WebP up to 5MB
+                  </span>
+                </button>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/jpeg,image/png,image/webp"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleImageSelect(file);
+                }}
               />
             </div>
             <div className="md:col-span-2">
@@ -299,7 +386,7 @@ function NewFacilityContent() {
             className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
             {submitting && <Loader2 size={14} className="animate-spin" />}
-            {submitting ? "Creating..." : "Create Resource"}
+            {uploading ? "Uploading image..." : submitting ? "Creating..." : "Create Resource"}
           </button>
         </div>
       </div>

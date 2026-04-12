@@ -8,6 +8,7 @@ public record CreateResourceRequest(
         Integer capacity,
         String location,
         String description,
+        String imageUrl,
         String status,
         List<AvailabilityWindowRequest> availabilityWindows) {
 }

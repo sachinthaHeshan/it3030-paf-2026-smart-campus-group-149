@@ -9,6 +9,7 @@ public record Resource(
         Integer capacity,
         String location,
         String description,
+        String imageUrl,
         String status,
         Long createdBy,
         Instant createdAt,

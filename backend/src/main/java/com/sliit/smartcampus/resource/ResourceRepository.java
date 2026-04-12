@@ -23,6 +23,7 @@ public class ResourceRepository {
             rs.getObject("capacity") != null ? rs.getInt("capacity") : null,
             rs.getString("location"),
             rs.getString("description"),
+            rs.getString("image_url"),
             rs.getString("status"),
             rs.getLong("created_by"),
             rs.getTimestamp("created_at").toInstant(),
@@ -70,13 +71,13 @@ public class ResourceRepository {
     }
 
     public Long save(String name, String type, Integer capacity, String location,
-                     String description, String status, Long createdBy) {
+                     String description, String imageUrl, String status, Long createdBy) {
         Timestamp now = Timestamp.from(Instant.now());
         jdbcTemplate.update("""
-                INSERT INTO resources (name, type, capacity, location, description, status, created_by, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO resources (name, type, capacity, location, description, image_url, status, created_by, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                name, type, capacity, location, description, status, createdBy, now, now);
+                name, type, capacity, location, description, imageUrl, status, createdBy, now, now);
 
         Long id = jdbcTemplate.queryForObject(
                 "SELECT id FROM resources WHERE created_by = ? ORDER BY created_at DESC LIMIT 1",
@@ -85,13 +86,13 @@ public class ResourceRepository {
     }
 
     public int update(Long id, String name, String type, Integer capacity,
-                      String location, String description) {
+                      String location, String description, String imageUrl) {
         Timestamp now = Timestamp.from(Instant.now());
         return jdbcTemplate.update("""
-                UPDATE resources SET name = ?, type = ?, capacity = ?, location = ?, description = ?, updated_at = ?
+                UPDATE resources SET name = ?, type = ?, capacity = ?, location = ?, description = ?, image_url = ?, updated_at = ?
                 WHERE id = ?
                 """,
-                name, type, capacity, location, description, now, id);
+                name, type, capacity, location, description, imageUrl, now, id);
     }
 
     public int updateStatus(Long id, String status) {

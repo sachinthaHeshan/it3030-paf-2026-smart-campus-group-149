@@ -64,7 +64,7 @@ public class ResourceService {
 
         Long resourceId = resourceRepository.save(
                 request.name(), request.type(), request.capacity(),
-                request.location(), request.description(), status, userId);
+                request.location(), request.description(), request.imageUrl(), status, userId);
 
         if (request.availabilityWindows() != null && !request.availabilityWindows().isEmpty()) {
             availabilityWindowRepository.saveAll(resourceId, request.availabilityWindows());
@@ -91,7 +91,7 @@ public class ResourceService {
         }
 
         resourceRepository.update(id, request.name(), request.type(),
-                request.capacity(), request.location(), request.description());
+                request.capacity(), request.location(), request.description(), request.imageUrl());
 
         availabilityWindowRepository.deleteByResourceId(id);
         if (request.availabilityWindows() != null && !request.availabilityWindows().isEmpty()) {
@@ -140,6 +140,7 @@ public class ResourceService {
                 r.capacity(),
                 r.location(),
                 r.description(),
+                r.imageUrl(),
                 r.status(),
                 r.createdBy(),
                 createdByName,

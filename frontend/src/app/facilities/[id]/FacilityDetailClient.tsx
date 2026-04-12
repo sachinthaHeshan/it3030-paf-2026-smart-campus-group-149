@@ -31,6 +31,7 @@ interface Resource {
   capacity: number | null;
   location: string;
   description: string | null;
+  imageUrl: string | null;
   status: string;
   createdBy: number;
   createdByName: string;
@@ -185,6 +186,16 @@ export default function FacilityDetailClient() {
         />
 
         <div className="space-y-6">
+          {resource.imageUrl && (
+            <div className="rounded-xl overflow-hidden border border-border shadow-sm">
+              <img
+                src={resource.imageUrl}
+                alt={resource.name}
+                className="w-full h-64 object-cover"
+              />
+            </div>
+          )}
+
           <div className="rounded-xl bg-card-bg border border-border shadow-sm p-6">
             <div className="flex items-center gap-3 mb-4">
               <StatusBadge status={resource.status} />

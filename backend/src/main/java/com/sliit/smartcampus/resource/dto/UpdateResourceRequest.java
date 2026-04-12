@@ -8,5 +8,6 @@ public record UpdateResourceRequest(
         Integer capacity,
         String location,
         String description,
+        String imageUrl,
         List<AvailabilityWindowRequest> availabilityWindows) {
 }

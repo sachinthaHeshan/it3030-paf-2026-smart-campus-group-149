@@ -44,6 +44,7 @@ interface Resource {
   capacity: number | null;
   location: string;
   description: string | null;
+  imageUrl: string | null;
   status: string;
   createdBy: number;
   createdByName: string;
@@ -216,9 +217,17 @@ function FacilitiesContent() {
               >
                 <Link href={`/facilities/${resource.id}/`}>
                   <div className="relative h-40 overflow-hidden bg-gray-100 flex items-center justify-center">
-                    <span className="text-muted text-[12px]">
-                      {resource.type.replace(/_/g, " ")}
-                    </span>
+                    {resource.imageUrl ? (
+                      <img
+                        src={resource.imageUrl}
+                        alt={resource.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-muted text-[12px]">
+                        {resource.type.replace(/_/g, " ")}
+                      </span>
+                    )}
                     <div className="absolute top-2 right-2">
                       <StatusBadge status={resource.status} />
                     </div>
