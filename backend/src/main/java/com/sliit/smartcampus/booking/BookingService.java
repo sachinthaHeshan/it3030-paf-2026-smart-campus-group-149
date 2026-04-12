@@ -169,6 +169,13 @@ public class BookingService {
         return toResponse(booking);
     }
 
+    public List<BookingResponse> getSchedule(Long resourceId, String date) {
+        LocalDate localDate = LocalDate.parse(date);
+        return bookingRepository.findByResourceAndDate(resourceId, localDate).stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
     public List<ResourceResponse> getActiveResources() {
         return resourceRepository.findAllActive().stream()
                 .map(r -> new ResourceResponse(

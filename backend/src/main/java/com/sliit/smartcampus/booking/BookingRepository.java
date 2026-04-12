@@ -117,6 +117,20 @@ public class BookingRepository {
                 now, id);
     }
 
+    public List<Booking> findByResourceAndDate(Long resourceId, LocalDate date) {
+        return jdbcTemplate.query(
+                """
+                SELECT * FROM bookings
+                WHERE resource_id = ?
+                  AND booking_date = ?
+                  AND status IN ('PENDING', 'APPROVED')
+                ORDER BY start_time ASC
+                """,
+                ROW_MAPPER,
+                resourceId,
+                Date.valueOf(date));
+    }
+
     public List<Booking> findConflicting(Long resourceId, LocalDate bookingDate,
                                          LocalTime startTime, LocalTime endTime) {
         return jdbcTemplate.query(

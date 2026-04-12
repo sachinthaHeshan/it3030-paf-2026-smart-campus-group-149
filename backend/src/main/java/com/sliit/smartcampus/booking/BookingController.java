@@ -101,6 +101,13 @@ public class BookingController {
         }
     }
 
+    @GetMapping("/bookings/schedule")
+    public ResponseEntity<List<BookingResponse>> getSchedule(
+            @RequestParam Long resourceId,
+            @RequestParam String date) {
+        return ResponseEntity.ok(bookingService.getSchedule(resourceId, date));
+    }
+
     @GetMapping("/bookings/resources")
     public ResponseEntity<List<ResourceResponse>> getActiveResources() {
         return ResponseEntity.ok(bookingService.getActiveResources());
