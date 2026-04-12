@@ -13,7 +13,7 @@ export async function uploadFile(
   const fileName = `${Date.now()}-${file.name}`;
   const { data, error } = await supabase.storage
     .from(bucket)
-    .upload(fileName, file, { contentType: file.type });
+    .upload(fileName, file, { contentType: file.type, upsert: true });
   if (error) throw new Error(`Upload failed: ${error.message}`);
   return data.path;
 }
