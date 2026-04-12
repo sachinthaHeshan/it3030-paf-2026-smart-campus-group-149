@@ -1,9 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import MainLayout from "@/components/layout/MainLayout";
 import PageHeader from "@/components/ui/PageHeader";
-import { Plus, Trash2 } from "lucide-react";
+import { apiFetch } from "@/lib/api";
+import { Plus, Trash2, Loader2 } from "lucide-react";
 
 const RESOURCE_TYPES = [
   "LECTURE_HALL",
@@ -31,9 +33,19 @@ interface AvailabilityRow {
 }
 
 function NewFacilityContent() {
+  const router = useRouter();
+
+  const [name, setName] = useState("");
+  const [type, setType] = useState("");
+  const [capacity, setCapacity] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
+  const [status, setStatus] = useState("ACTIVE");
   const [availabilityWindows, setAvailabilityWindows] = useState<
     AvailabilityRow[]
   >([{ day: "MONDAY", startTime: "08:00", endTime: "17:00" }]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const addWindow = () => {
     setAvailabilityWindows([
@@ -46,6 +58,49 @@ function NewFacilityContent() {
     setAvailabilityWindows(availabilityWindows.filter((_, i) => i !== index));
   };
 
+  const handleSubmit = async () => {
+    setError(null);
+    if (!name.trim()) {
+      setError("Name is required.");
+      return;
+    }
+    if (!type) {
+      setError("Type is required.");
+      return;
+    }
+    if (!location.trim()) {
+      setError("Location is required.");
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const body = {
+        name: name.trim(),
+        type,
+        capacity: capacity ? Number.parseInt(capacity, 10) : null,
+        location: location.trim(),
+        description: description.trim() || null,
+        status,
+        availabilityWindows: availabilityWindows.map((w) => ({
+          dayOfWeek: w.day,
+          startTime: w.startTime,
+          endTime: w.endTime,
+        })),
+      };
+
+      const created = await apiFetch<{ id: number }>("/api/resources", {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      router.push(`/facilities/${created.id}/`);
+    } catch {
+      setError("Failed to create resource. Please check your inputs.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="max-w-3xl mx-auto">
       <PageHeader
@@ -53,6 +108,12 @@ function NewFacilityContent() {
         subtitle="Create a new bookable facility or equipment"
         backHref="/facilities/"
       />
+
+      {error && (
+        <div className="mb-4 rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-[13px] text-red-600">
+          {error}
+        </div>
+      )}
 
       <div className="space-y-6">
         {/* Basic Info */}
@@ -63,19 +124,25 @@ function NewFacilityContent() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-[13px] font-medium text-foreground mb-1">
-                Name
+                Name <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 placeholder="e.g. Collaborative Lab Room 402"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="h-10 w-full rounded-lg border border-border bg-white px-3 text-[13px] outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
               />
             </div>
             <div>
               <label className="block text-[13px] font-medium text-foreground mb-1">
-                Type
+                Type <span className="text-red-500">*</span>
               </label>
-              <select className="h-10 w-full rounded-lg border border-border bg-white px-3 text-[13px] outline-none focus:border-primary">
+              <select
+                value={type}
+                onChange={(e) => setType(e.target.value)}
+                className="h-10 w-full rounded-lg border border-border bg-white px-3 text-[13px] outline-none focus:border-primary"
+              >
                 <option value="">Select type...</option>
                 {RESOURCE_TYPES.map((t) => (
                   <option key={t} value={t}>
@@ -91,16 +158,20 @@ function NewFacilityContent() {
               <input
                 type="number"
                 placeholder="Number of people"
+                value={capacity}
+                onChange={(e) => setCapacity(e.target.value)}
                 className="h-10 w-full rounded-lg border border-border bg-white px-3 text-[13px] outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
               />
             </div>
             <div className="md:col-span-2">
               <label className="block text-[13px] font-medium text-foreground mb-1">
-                Location
+                Location <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 placeholder="e.g. Engineering Block B, Floor 4"
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
                 className="h-10 w-full rounded-lg border border-border bg-white px-3 text-[13px] outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
               />
             </div>
@@ -111,6 +182,8 @@ function NewFacilityContent() {
               <textarea
                 rows={3}
                 placeholder="Describe the resource..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
                 className="w-full rounded-lg border border-border bg-white px-3 py-2 text-[13px] outline-none focus:border-primary focus:ring-1 focus:ring-primary/30 resize-none"
               />
             </div>
@@ -124,7 +197,8 @@ function NewFacilityContent() {
                     type="radio"
                     name="status"
                     value="ACTIVE"
-                    defaultChecked
+                    checked={status === "ACTIVE"}
+                    onChange={(e) => setStatus(e.target.value)}
                     className="accent-primary"
                   />
                   Active
@@ -134,6 +208,8 @@ function NewFacilityContent() {
                     type="radio"
                     name="status"
                     value="OUT_OF_SERVICE"
+                    checked={status === "OUT_OF_SERVICE"}
+                    onChange={(e) => setStatus(e.target.value)}
                     className="accent-primary"
                   />
                   Out of Service
@@ -218,9 +294,12 @@ function NewFacilityContent() {
           </a>
           <button
             type="button"
-            className="rounded-lg bg-primary px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-primary-dark transition-colors"
+            disabled={submitting}
+            onClick={handleSubmit}
+            className="flex items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-[13px] font-semibold text-white hover:bg-primary-dark transition-colors disabled:opacity-50"
           >
-            Create Resource
+            {submitting && <Loader2 size={14} className="animate-spin" />}
+            {submitting ? "Creating..." : "Create Resource"}
           </button>
         </div>
       </div>
