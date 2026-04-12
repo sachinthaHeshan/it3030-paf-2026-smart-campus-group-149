@@ -2,6 +2,7 @@ package com.sliit.smartcampus.booking;
 
 import com.sliit.smartcampus.auth.User;
 import com.sliit.smartcampus.auth.UserRepository;
+import com.sliit.smartcampus.booking.dto.AvailabilityResponse;
 import com.sliit.smartcampus.booking.dto.BookingResponse;
 import com.sliit.smartcampus.booking.dto.CreateBookingRequest;
 import com.sliit.smartcampus.booking.dto.ResourceResponse;
@@ -173,6 +174,18 @@ public class BookingService {
         LocalDate localDate = LocalDate.parse(date);
         return bookingRepository.findByResourceAndDate(resourceId, localDate).stream()
                 .map(this::toResponse)
+                .toList();
+    }
+
+    public List<AvailabilityResponse> getAvailability(Long resourceId, String date) {
+        LocalDate localDate = LocalDate.parse(date);
+        String dayOfWeek = localDate.getDayOfWeek()
+                .getDisplayName(TextStyle.FULL, Locale.ENGLISH).toUpperCase();
+        return resourceRepository.findAvailabilityWindows(resourceId, dayOfWeek).stream()
+                .map(w -> new AvailabilityResponse(
+                        w.dayOfWeek(),
+                        w.startTime().format(TIME_FMT),
+                        w.endTime().format(TIME_FMT)))
                 .toList();
     }
 

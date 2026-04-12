@@ -1,5 +1,6 @@
 package com.sliit.smartcampus.booking;
 
+import com.sliit.smartcampus.booking.dto.AvailabilityResponse;
 import com.sliit.smartcampus.booking.dto.BookingResponse;
 import com.sliit.smartcampus.booking.dto.CreateBookingRequest;
 import com.sliit.smartcampus.booking.dto.ResourceResponse;
@@ -106,6 +107,13 @@ public class BookingController {
             @RequestParam Long resourceId,
             @RequestParam String date) {
         return ResponseEntity.ok(bookingService.getSchedule(resourceId, date));
+    }
+
+    @GetMapping("/bookings/availability")
+    public ResponseEntity<List<AvailabilityResponse>> getAvailability(
+            @RequestParam Long resourceId,
+            @RequestParam String date) {
+        return ResponseEntity.ok(bookingService.getAvailability(resourceId, date));
     }
 
     @GetMapping("/bookings/resources")
