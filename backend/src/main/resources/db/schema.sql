@@ -9,12 +9,25 @@ CREATE TABLE IF NOT EXISTS users (
     profile_picture VARCHAR(500),
     provider VARCHAR(50) NOT NULL DEFAULT 'GOOGLE',
     provider_id VARCHAR(255),
+    password_hash VARCHAR(255),
     role VARCHAR(20) NOT NULL DEFAULT 'USER'
         CHECK (role IN ('USER', 'ADMIN', 'TECHNICIAN', 'MANAGER')),
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
-    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+    CONSTRAINT users_provider_password_check CHECK (
+        (provider = 'EMAIL' AND password_hash IS NOT NULL)
+        OR (provider <> 'EMAIL' AND password_hash IS NULL)
+    )
 );
+
+-- Migration note for EXISTING databases (skip on fresh installs):
+--   ALTER TABLE users ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255);
+--   ALTER TABLE users DROP CONSTRAINT IF EXISTS users_provider_password_check;
+--   ALTER TABLE users ADD CONSTRAINT users_provider_password_check CHECK (
+--       (provider = 'EMAIL' AND password_hash IS NOT NULL)
+--       OR (provider <> 'EMAIL' AND password_hash IS NULL)
+--   );
 
 -- 2. resources
 CREATE TABLE IF NOT EXISTS resources (

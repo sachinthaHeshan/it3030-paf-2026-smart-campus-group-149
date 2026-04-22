@@ -2,7 +2,10 @@ package com.sliit.smartcampus.auth;
 
 import com.sliit.smartcampus.auth.dto.AuthResponse;
 import com.sliit.smartcampus.auth.dto.GoogleAuthRequest;
+import com.sliit.smartcampus.auth.dto.LoginRequest;
+import com.sliit.smartcampus.auth.dto.RegisterRequest;
 import com.sliit.smartcampus.auth.dto.UpdateProfileRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -27,6 +30,16 @@ public class AuthController {
         } catch (IllegalStateException e) {
             return ResponseEntity.status(403).build();
         }
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+        return ResponseEntity.status(201).body(authService.register(request));
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
+        return ResponseEntity.ok(authService.login(request));
     }
 
     @GetMapping("/me")

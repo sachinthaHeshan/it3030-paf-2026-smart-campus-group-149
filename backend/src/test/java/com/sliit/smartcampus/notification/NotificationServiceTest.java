@@ -32,7 +32,7 @@ class NotificationServiceTest {
     @BeforeEach
     void setUp() {
         sampleUser = new User(1L, "user@test.com", "Test User", null,
-                "GOOGLE", "gid", "USER", true, Instant.now(), Instant.now());
+                "GOOGLE", "gid", null, "USER", true, Instant.now(), Instant.now());
     }
 
     @Test
@@ -48,9 +48,9 @@ class NotificationServiceTest {
     @Test
     void notifyManagersAndAdmins_notifiesAllManagersAndAdmins() {
         User manager = new User(2L, "mgr@test.com", "Manager", null,
-                "GOOGLE", "gid2", "MANAGER", true, Instant.now(), Instant.now());
+                "GOOGLE", "gid2", null, "MANAGER", true, Instant.now(), Instant.now());
         User admin = new User(3L, "admin@test.com", "Admin", null,
-                "GOOGLE", "gid3", "ADMIN", true, Instant.now(), Instant.now());
+                "GOOGLE", "gid3", null, "ADMIN", true, Instant.now(), Instant.now());
 
         when(userRepository.findByRoles(List.of("MANAGER", "ADMIN")))
                 .thenReturn(List.of(manager, admin));

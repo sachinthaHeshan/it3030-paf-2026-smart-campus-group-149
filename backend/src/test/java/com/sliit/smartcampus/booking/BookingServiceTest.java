@@ -43,7 +43,7 @@ class BookingServiceTest {
         activeResource = new Resource(1L, "Lab 101", "LAB", 30, "Building A",
                 "Desc", "ACTIVE", 1L, Instant.now(), Instant.now());
         sampleUser = new User(1L, "user@test.com", "Test User", null,
-                "GOOGLE", "gid", "USER", true, Instant.now(), Instant.now());
+                "GOOGLE", "gid", null, "USER", true, Instant.now(), Instant.now());
         pendingBooking = new Booking(1L, 1L, 1L,
                 LocalDate.of(2026, 5, 1), LocalTime.of(9, 0), LocalTime.of(10, 0),
                 "Meeting", 10, "PENDING", null, null, null, Instant.now(), Instant.now());

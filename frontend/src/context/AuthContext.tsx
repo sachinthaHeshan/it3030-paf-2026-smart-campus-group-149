@@ -23,6 +23,8 @@ interface AuthContextType {
   token: string | null;
   isLoading: boolean;
   login: (googleCredential: string) => Promise<void>;
+  loginWithEmail: (email: string, password: string) => Promise<void>;
+  register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
   updateProfile: (name: string, profilePicture?: string | null) => Promise<void>;
 }
@@ -69,6 +71,47 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setUser(data.user);
   }, []);
 
+  const persistAuth = useCallback(
+    async (path: string, body: Record<string, string>, fallbackError: string) => {
+      const res = await fetch(`${config.backendUrl}${path}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => null);
+        throw new Error(data?.message || fallbackError);
+      }
+      const data = await res.json();
+      localStorage.setItem(TOKEN_KEY, data.token);
+      setToken(data.token);
+      setUser(data.user);
+    },
+    [],
+  );
+
+  const loginWithEmail = useCallback(
+    async (email: string, password: string) => {
+      await persistAuth(
+        "/api/auth/login",
+        { email, password },
+        "Invalid email or password",
+      );
+    },
+    [persistAuth],
+  );
+
+  const register = useCallback(
+    async (name: string, email: string, password: string) => {
+      await persistAuth(
+        "/api/auth/register",
+        { name, email, password },
+        "Registration failed",
+      );
+    },
+    [persistAuth],
+  );
+
   const logout = useCallback(() => {
     localStorage.removeItem(TOKEN_KEY);
     setToken(null);
@@ -98,7 +141,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, token, isLoading, login, logout, updateProfile }}
+      value={{
+        user,
+        token,
+        isLoading,
+        login,
+        loginWithEmail,
+        register,
+        logout,
+        updateProfile,
+      }}
     >
       {children}
     </AuthContext.Provider>

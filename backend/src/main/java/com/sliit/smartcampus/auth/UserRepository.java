@@ -20,6 +20,7 @@ public class UserRepository {
             rs.getString("profile_picture"),
             rs.getString("provider"),
             rs.getString("provider_id"),
+            rs.getString("password_hash"),
             rs.getString("role"),
             rs.getBoolean("is_active"),
             rs.getTimestamp("created_at").toInstant(),
@@ -48,13 +49,18 @@ public class UserRepository {
     }
 
     public User save(String email, String name, String profilePicture, String provider, String providerId) {
+        return save(email, name, profilePicture, provider, providerId, null);
+    }
+
+    public User save(String email, String name, String profilePicture,
+                     String provider, String providerId, String passwordHash) {
         Timestamp now = Timestamp.from(java.time.Instant.now());
         jdbcTemplate.update(
                 """
-                INSERT INTO users (email, name, profile_picture, provider, provider_id, role, is_active, created_at, updated_at)
-                VALUES (?, ?, ?, ?, ?, 'USER', TRUE, ?, ?)
+                INSERT INTO users (email, name, profile_picture, provider, provider_id, password_hash, role, is_active, created_at, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, 'USER', TRUE, ?, ?)
                 """,
-                email, name, profilePicture, provider, providerId, now, now);
+                email, name, profilePicture, provider, providerId, passwordHash, now, now);
 
         return findByEmail(email).orElseThrow();
     }

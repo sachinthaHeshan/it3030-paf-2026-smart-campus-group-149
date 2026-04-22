@@ -3,6 +3,7 @@ package com.sliit.smartcampus.ticket;
 import com.sliit.smartcampus.auth.User;
 import com.sliit.smartcampus.auth.UserRepository;
 import com.sliit.smartcampus.notification.NotificationService;
+import com.sliit.smartcampus.rating.TicketRatingRepository;
 import com.sliit.smartcampus.resource.ResourceRepository;
 import com.sliit.smartcampus.ticket.dto.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +30,7 @@ class TicketServiceTest {
     @Mock private UserRepository userRepository;
     @Mock private ResourceRepository resourceRepository;
     @Mock private NotificationService notificationService;
+    @Mock private TicketRatingRepository ratingRepository;
 
     @InjectMocks
     private TicketService ticketService;
@@ -44,7 +46,7 @@ class TicketServiceTest {
                 "Building A, Room 101", "user@test.com", null,
                 null, null, null, null, Instant.now(), Instant.now());
         sampleUser = new User(1L, "user@test.com", "Test User", null,
-                "GOOGLE", "gid", "USER", true, Instant.now(), Instant.now());
+                "GOOGLE", "gid", null, "USER", true, Instant.now(), Instant.now());
     }
 
     @Test
