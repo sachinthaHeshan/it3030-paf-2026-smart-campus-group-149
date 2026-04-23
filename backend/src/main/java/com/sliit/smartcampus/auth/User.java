@@ -9,6 +9,7 @@ public record User(
         String profilePicture,
         String provider,
         String providerId,
+        String passwordHash,
         String role,
         boolean isActive,
         Instant createdAt,

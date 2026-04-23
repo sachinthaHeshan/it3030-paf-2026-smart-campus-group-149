@@ -10,11 +10,10 @@ import {
   AlertTriangle,
   Users,
   Bell,
-  Settings,
-  HelpCircle,
   CirclePlus,
   UserCircle,
   X,
+  History,
 } from "lucide-react";
 
 interface NavItem {
@@ -36,12 +35,16 @@ const navItems: NavItem[] = [
     icon: Users,
     roles: ["ADMIN"],
   },
+  {
+    label: "Activity Log",
+    href: "/activity-log/",
+    icon: History,
+    roles: ["ADMIN"],
+  },
 ];
 
 const bottomItems: NavItem[] = [
   { label: "Profile", href: "/profile/", icon: UserCircle },
-  { label: "Settings", href: "/settings/", icon: Settings },
-  { label: "Help", href: "/help/", icon: HelpCircle },
 ];
 
 interface SidebarProps {
