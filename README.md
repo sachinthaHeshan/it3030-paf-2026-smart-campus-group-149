@@ -4,12 +4,12 @@ A full-stack campus management platform built for SLIIT, enabling students and s
 
 ## Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
+| Layer    | Technology                                     |
+| -------- | ---------------------------------------------- |
 | Frontend | Next.js 16, React 19, Tailwind CSS, TypeScript |
-| Backend | Spring Boot, Java, PostgreSQL |
-| Auth | JWT + Google OAuth |
-| Deploy | GitHub Pages (frontend), Railway (backend) |
+| Backend  | Spring Boot, Java, PostgreSQL                  |
+| Auth     | JWT + Google OAuth                             |
+| Deploy   | GitHub Pages (frontend), Railway (backend)     |
 
 ## Features
 
@@ -31,6 +31,7 @@ A full-stack campus management platform built for SLIIT, enabling students and s
 ## Running Locally
 
 **Frontend**
+
 ```bash
 cd frontend
 pnpm install
@@ -38,6 +39,7 @@ pnpm dev        # http://localhost:3000
 ```
 
 **Backend**
+
 ```bash
 cd backend
 ./mvnw spring-boot:run   # http://localhost:8080
